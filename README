@@ -9,4 +9,6 @@
 
 == Installation steps
 
+* Run > npm install
 * Run > bower install angular#1.4.8
+* Run > bower install bootstrap
