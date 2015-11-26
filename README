@@ -1,0 +1,12 @@
+= EVENT MANAGEMENT
+
+== Dependencies
+
+* MongoDB
+* NodeJS
+* NPM
+* Bower
+
+== Installation steps
+
+* Run > bower install angular#1.4.8
