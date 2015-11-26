@@ -1,0 +1,16 @@
+<div class="event" ng-click="show = !show">
+	<div class="row resume">
+		<div class="col-md-2">
+			<img ng-src="{{ event.logo }}"/>
+		</div>
+		<div class="col-md-7">
+			<h1 ng-bind="event.title"></h1>
+		</div>
+		<div class="col-md-3">
+			<h1 ng-bind="event.date"></h1>
+		</div>
+	</div>
+	<div class="row popunder" ng-if="show">
+		<div class="col-md-12" ng-bind="event.description"></div>
+	</div>
+</div>
