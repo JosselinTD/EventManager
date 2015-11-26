@@ -12,6 +12,7 @@
 * Run > npm install
 * Run > bower install angular#1.4.8
 * Run > bower install bootstrap
+* Run > bower install angular-resource#1.4.8
 
 == Modification steps
 
