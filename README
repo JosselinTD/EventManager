@@ -12,3 +12,9 @@
 * Run > npm install
 * Run > bower install angular#1.4.8
 * Run > bower install bootstrap
+
+== Modification steps
+
+* Run > npm install gulp
+* Run > npm install gulp-concat
+* Run > npm install gulp-clean
