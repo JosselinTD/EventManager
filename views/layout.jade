@@ -1,5 +1,5 @@
 doctype html
-html
+html(ng-app='event-management')
 	head
 		title= title
 		link(rel='stylesheet', href='/javascripts/vendor/bootstrap/dist/css/bootstrap.min.css')
@@ -8,6 +8,8 @@ html
 		script(type='text/javascript', src='/javascripts/vendor/jquery/dist/jquery.min.js')
 		script(type='text/javascript', src='/javascripts/vendor/bootstrap/dist/js/bootstrap.min.js')
 		script(type='text/javascript', src='/javascripts/vendor/angular/angular.min.js')
+
+		script(type='text/javascript', src='/javascripts/event-management/module.js')
 
 	body
 		block content
