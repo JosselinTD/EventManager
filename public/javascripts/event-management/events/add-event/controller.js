@@ -1,26 +1,17 @@
 (function(){
 	angular.module("event-management")
-		.controller("AddEventController", ["$scope", "EventsService", function($scope, EventsService){
+		.controller("AddEventController", ["$scope", "EventsService", "EventModalService", function($scope, EventsService, EventModalService){
 			var ctrl = this;
 
-			$scope.clearEvent = function(){
-				$scope.newEvent = {
+			$scope.addEvent = function(){
+				EventModalService.open({
 					title:"",
 					description:"",
 					date:"",
 					logo:""
-				}
-			}
+				}, "Add");
+			};
 
-			$scope.add = function(){
-				EventsService.add($scope.newEvent, function(){
-					$scope.clearEvent();
-					ctrl.showAddEvent = false;
-				}, function(){
-					//TODO Add error management
-				});
-			}
-
-			$scope.clearEvent();
+			
 		}]);
 })();
