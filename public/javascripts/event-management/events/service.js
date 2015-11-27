@@ -4,6 +4,11 @@
 			var Events = $resource("/events/:id", null, {
 						update: {
 							method: "PUT"
+						},
+						save: { //For file upload, see https://uncorkedstudios.com/blog/multipartformdata-file-upload-with-angularjs
+							method: "POST",
+							transformRequest: angular.identity,
+							headers: {'Content-Type': undefined}
 						}
 					}
 				),
@@ -15,8 +20,12 @@
 				success = success || function(){};
 				error = error || function(){};
 
-				var newEvent = new Events(event);
-				newEvent.$save({}, function(data){
+				var fd = new FormData();
+				for (var key in event) {
+		            fd.append(key, event[key]);
+		        }
+
+				Events.save({}, fd, function(data){
 					serv.events.push(new Events(data));
 					success();
 				}, function(){
