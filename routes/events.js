@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var moment = require('moment');
 
 var events = [
   		{
@@ -36,10 +37,12 @@ router.post('/', function(req, res){
 		return res.send("Error 400 : Missing informations");
 	}
 
+  var date = moment(req.body.date);
+
 	var newEvent = {
 		title: req.body.title,
 		description: req.body.description,
-		date: req.body.date,
+		date: date.format("MM/DD/YYYY"),
 		logo: req.body.logo
 	};
 
