@@ -1,5 +1,5 @@
-<div class="event" ng-click="show = !show">
-	<div class="row resume">
+<div class="event">
+	<div class="row resume" ng-click="show = !show">
 		<div class="col-md-2">
 			<img ng-src="{{ event.logo }}"/>
 		</div>
@@ -12,5 +12,6 @@
 	</div>
 	<div class="row popunder" ng-if="show">
 		<div class="col-md-12" ng-bind="event.description"></div>
+		<div class="edit btn btn-warning glyphicon glyphicon-edit" ng-click="edit()"></div>
 	</div>
 </div>
