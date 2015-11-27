@@ -6,3 +6,30 @@ body {
 a {
   color: #00B7FF;
 }
+
+.event{
+	background-color:#f2efed;
+	margin:20px 0;
+	padding:3px;
+
+	cursor:pointer;
+
+	-moz-box-shadow: 0px 10px 0px 0px #e6e2de;
+	-webkit-box-shadow: 0px 10px 0px 0px #e6e2de;
+	-o-box-shadow: 0px 10px 0px 0px #e6e2de;
+	box-shadow: 0px 10px 0px 0px #e6e2de;
+	filter:progid:DXImageTransform.Microsoft.Shadow(color=#e6e2de, Direction=180, Strength=0);
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+
+.event .popunder{
+	font-size:18px;
+	padding:20px;
+}
+
+.event img{
+	max-width:100%;
+	max-height:69px;
+}
