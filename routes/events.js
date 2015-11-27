@@ -4,26 +4,22 @@ var moment = require('moment');
 var formidable = require('formidable');
 var Event = require("../models/Event.js").Event;
 
-var events = [
-  		{
-  			title: "dotJS",
-  			description: "The largest JavaScript conference in Europe",
-  			date: "12/07/2015",
-  			logo: "http://www.dotjs.io/images/logos/dotjs/big-logo.png"
-  		},
-  		{
-  			title: "Hackathon E-Résidents",
-  			description: "Devs, makers, designers, data scientists – get ready to hack! Dalkia, Intent Technologies and BeMyApp invite you to a hackathon with sustainability at its core. The concept is to take a bunch of data related to residents and their energy usage and, using your savvy, develop the ultimate e-resident solution to improve the daily lives of tenants. In this four-step event, submit your idea online using the ideation platform, then attend a workshop with our team of experts, during which you’ll form into teams. Next up is a fiercely competitive 48-hour hackathon), where the most successful teams will share a prize of €15,000, plus begin a two-month incubation with Dalkia. The event will be held at l’USINE IO in Paris, a building fully connected to deliver energy-related data. With this, your resulting e-resident apps will help future tenants live more sustainably. Quite the payoff, right?",
-  			date: "02/07/2016",
-  			logo: "http://www.mtbela.com/resources/uploads/Dalkia.jpg"
-  		},
-  		{
-  			title: "Workshop: AngularJS workshop",
-  			description: "AngularJS brings testable architectural patterns to applications built with HTML 5. This course explains and demonstrates the many features of AngularJS, including directives, filters, routing, controllers, templates, services, views. But, the best applications need more than a single framework. We’ll also learn about responsive design, Bootstrap, and the latest HTML 5 features including local storage, the canvas, web workers, web sockets, and more.",
-  			date: "06/15/2016",
-  			logo: "http://www.w3schools.com/angular/pic_angular.jpg"
-  		}
-  	];
+var uploadDir = "public/images",
+    dateFormat = "YYYY/MM/DD",
+    dateSize = dateFormat.length;
+
+function checkRequestContent(fields, files){
+  var bad = {code: 400, message:"Missing informations", error:"Missing information"};
+  if( !fields.hasOwnProperty('title') || fields.title === "" || 
+      !fields.hasOwnProperty('description') || fields.description === "" || 
+      !fields.hasOwnProperty('date') || fields.date === ""){
+        return bad;
+  } else if(!files.hasOwnProperty('logo') && (!fields.hasOwnProperty('logo') || fields.logo === "")){
+    return bad;
+  }
+
+  return false;
+}
 
 /* GET events listing. */
 router.get('/', function(req, res, next) {
@@ -37,16 +33,13 @@ router.post('/', function(req, res){
     //Formidable is used to parse the file upload sended by FormData
     var form = new formidable.IncomingForm();
 
-    form.uploadDir = "public/images";
+    form.uploadDir = uploadDir;
 
     form.parse(req, function(err, fields, files) {
-      
-      if( !fields.hasOwnProperty('title') || fields.title === "" || 
-          !fields.hasOwnProperty('description') || fields.description === "" || 
-          !fields.hasOwnProperty('date') || fields.date === "" || 
-          !files.hasOwnProperty('logo')){
-        res.statusCode = 400;
-        return res.json({message:"Missing informations", error:"Missing information"});
+      var check = checkRequestContent(fields, files);
+      if(check){
+        res.statusCode = check.code;
+        return res.json(check);
       }
 
       var date = moment(fields.date);
@@ -54,7 +47,7 @@ router.post('/', function(req, res){
       var newEvent = new Event({
         title: fields.title,
         description: fields.description,
-        date: date.format("MM/DD/YYYY"),
+        date: date.format(dateFormat),
         logo: files.logo.path.replace("public", "")
       });
 
@@ -67,6 +60,50 @@ router.post('/', function(req, res){
         }
       });
     });
+});
+
+router.put('/', function(req, res){
+    //Formidable is used to parse the file upload sended by FormData
+    var form = new formidable.IncomingForm();
+
+    form.uploadDir = uploadDir;
+
+    form.parse(req, function(err, fields, files) {
+      var check = checkRequestContent(fields, files);
+      if(check){
+        res.statusCode = check.code;
+        return res.json(check);
+      }
+
+      var date = fields.date;
+      if(date.length !== dateSize){
+        var date = moment(date).format(dateFormat);
+      }
+
+      var logo = fields.logo;
+      if(files.hasOwnProperty("logo")){
+        logo = files.logo.path.replace("public", "");
+      }
+
+      var newEvent = {
+        title: fields.title,
+        description: fields.description,
+        date: date,
+        logo: logo
+      };
+
+      Event.update({_id: fields._id}, {$set:newEvent}, function(error, event){
+        if(error || !event){
+          res.statusCode = 500;
+          return res.json({message:"Something bad happen in the Matrix, please warn the architect !", error:error});
+        } else{
+          Event.findOne({_id: fields._id}, function(error, event){
+            res.json(event);
+          });
+        }
+      });
+    });
+      
 });
 
 module.exports = router;

@@ -33,7 +33,7 @@
 		        	Events.update({}, fd, function(data){
 		        		var updatedEvent = new Events(data);
 		        		serv.events.some(function(item){
-		        			if(item._id == updatedEvent){
+		        			if(item._id == updatedEvent._id){
 		        				angular.extend(item, updatedEvent);
 		        				return true;
 		        			}
