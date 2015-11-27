@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var moment = require('moment');
 var formidable = require('formidable');
+var Event = require("../models/Event.js").Event;
 
 var events = [
   		{
@@ -26,7 +27,9 @@ var events = [
 
 /* GET events listing. */
 router.get('/', function(req, res, next) {
-  res.json(events);
+  Event.find({}, function(error, events){
+    res.json(events);
+  });
 });
 
 router.post('/', function(req, res){
@@ -43,21 +46,26 @@ router.post('/', function(req, res){
           !fields.hasOwnProperty('date') || fields.date === "" || 
           !files.hasOwnProperty('logo')){
         res.statusCode = 400;
-        return res.send("Error 400 : Missing informations");
+        return res.json({message:"Missing informations", error:"Missing information"});
       }
 
       var date = moment(fields.date);
 
-      var newEvent = {
+      var newEvent = new Event({
         title: fields.title,
         description: fields.description,
         date: date.format("MM/DD/YYYY"),
         logo: files.logo.path.replace("public", "")
-      };
+      });
 
-      events.push(newEvent);
-
-      res.json(newEvent);
+      newEvent.save(function(error, event){
+        if(error || !event){
+          res.statusCode = 500;
+          return res.json({message:"Something bad happen in the Matrix, please warn the architect !", error:error});
+        } else{
+          res.json(event);
+        }
+      });
     });
 });
 
