@@ -35,6 +35,11 @@
 			var Events = $resource("/events/:id", null, {
 						update: {
 							method: "PUT"
+						},
+						save: { //For file upload, see https://uncorkedstudios.com/blog/multipartformdata-file-upload-with-angularjs
+							method: "POST",
+							transformRequest: angular.identity,
+							headers: {'Content-Type': undefined}
 						}
 					}
 				),
@@ -46,8 +51,12 @@
 				success = success || function(){};
 				error = error || function(){};
 
-				var newEvent = new Events(event);
-				newEvent.$save({}, function(data){
+				var fd = new FormData();
+				for (var key in event) {
+		            fd.append(key, event[key]);
+		        }
+
+				Events.save({}, fd, function(data){
 					serv.events.push(new Events(data));
 					success();
 				}, function(){
@@ -90,6 +99,21 @@
 				templateUrl: "/javascripts/event-management/events/add-event/directive.html",
 				controller:"AddEventController",
 				controllerAs:"ctrl"
+			}
+		}])
+		.directive("fileModel", ["$parse", function($parse){ //For file upload, see https://uncorkedstudios.com/blog/multipartformdata-file-upload-with-angularjs
+			return {
+				restrict: "A",
+				link: function(scope, element, attrs){
+					var model = $parse(attrs.fileModel),
+						modelSetter = model.assign;
+
+					element.bind("change", function(){
+						scope.$apply(function(){
+							modelSetter(scope, element[0].files[0]);
+						});
+					});
+				}
 			}
 		}]);
 })();
