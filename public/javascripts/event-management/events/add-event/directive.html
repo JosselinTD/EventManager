@@ -1,0 +1,27 @@
+<div class="add-event">
+	<button 
+		class="btn btn-primary" 
+		ng-if="!ctrl.showAddEvent" 
+		ng-click="ctrl.showAddEvent = !ctrl.showAddEvent">
+			Add event
+	</button>
+
+	<form ng-submit="add()" ng-if="ctrl.showAddEvent">
+		<div class="form-group">
+			<input type="text" class="form-control" placeholder="Title" ng-model="newEvent.title"/>
+		</div>
+		<div class="form-group">
+			<textarea class="form-control" placeholder="Description" ng-model="newEvent.description"></textarea>
+		</div>
+		<div class="form-group">
+			<input uib-datepicker-popup="MM/dd/yyyy" class="form-control" type="text" ng-model="newEvent.date" is-open="showDate" ng-click="showDate = !showDate" placeholder="Date"/>
+		</div>
+		<div class="form-group">
+			<input type="text" class="form-control" placeholder="Logo" ng-model="newEvent.logo"/>
+		</div>
+
+		<input type="submit" class="btn btn-primary" value="Add"/>
+		<input type="reset" class="btn btn-warning" ng-click="clearEvent()" value="Reset"/>
+		<input type="reset" class="btn btn-danger" ng-click="ctrl.showAddEvent = false; clearEvent()" value="Cancel"/>
+	</form>
+</dv>
