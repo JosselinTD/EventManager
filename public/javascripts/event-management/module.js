@@ -10,35 +10,12 @@
 		The events folder contain the logic for the event list and the event subfolder contain all the logic for each item of the list
 	*/
 
-	angular.module("event-management", []);
+	angular.module("event-management", ["ngResource", "ui.bootstrap"]);
 })();
 (function(){
 	angular.module("event-management")
-		.controller("EventsController", ["$scope", function($scope){
-
-			/* Temporary list for testing purpose */
-			$scope.events = [
-		  		{
-		  			title: "dotJS",
-		  			description: "The largest JavaScript conference in Europe",
-		  			date: "12/07/2015",
-		  			logo: "http://www.dotjs.io/images/logos/dotjs/big-logo.png"
-		  		},
-		  		{
-		  			title: "Hackathon E-Résidents",
-		  			description: "Devs, makers, designers, data scientists – get ready to hack! Dalkia, Intent Technologies and BeMyApp invite you to a hackathon with sustainability at its core. The concept is to take a bunch of data related to residents and their energy usage and, using your savvy, develop the ultimate e-resident solution to improve the daily lives of tenants. In this four-step event, submit your idea online using the ideation platform, then attend a workshop with our team of experts, during which you’ll form into teams. Next up is a fiercely competitive 48-hour hackathon), where the most successful teams will share a prize of €15,000, plus begin a two-month incubation with Dalkia. The event will be held at l’USINE IO in Paris, a building fully connected to deliver energy-related data. With this, your resulting e-resident apps will help future tenants live more sustainably. Quite the payoff, right?",
-		  			date: "02/072016",
-		  			logo: "http://www.mtbela.com/resources/uploads/Dalkia.jpg"
-		  		},
-		  		{
-		  			title: "Workshop: AngularJS workshop",
-		  			description: "AngularJS brings testable architectural patterns to applications built with HTML 5. This course explains and demonstrates the many features of AngularJS, including directives, filters, routing, controllers, templates, services, views. But, the best applications need more than a single framework. We’ll also learn about responsive design, Bootstrap, and the latest HTML 5 features including local storage, the canvas, web workers, web sockets, and more.",
-		  			date: "06/15/2016",
-		  			logo: "http://www.w3schools.com/angular/pic_angular.jpg"
-		  		}
-		  	];
-
-		  	//TODO : service for getting the item list from the server
+		.controller("EventsController", ["$scope", "EventsService", function($scope, EventsService){
+			$scope.events = EventsService.events;
 		}]);
 })();
 (function(){
@@ -49,6 +26,70 @@
 				templateUrl: "/javascripts/event-management/events/directive.html",
 				controller: "EventsController",
 				controllerAs: "ctrl"
+			}
+		}]);
+})();
+(function(){
+	angular.module("event-management")
+		.service("EventsService", ["$resource", function($resource){
+			var Events = $resource("/events/:id", null, {
+						update: {
+							method: "PUT"
+						}
+					}
+				),
+				serv = this;
+
+			serv.events = Events.query();
+
+			serv.add = function(event, success, error){
+				success = success || function(){};
+				error = error || function(){};
+
+				var newEvent = new Events(event);
+				newEvent.$save({}, function(data){
+					serv.events.push(new Events(data));
+					success();
+				}, function(){
+					error();
+				});
+			}
+		}]);
+})();
+(function(){
+	angular.module("event-management")
+		.controller("AddEventController", ["$scope", "EventsService", function($scope, EventsService){
+			var ctrl = this;
+
+			$scope.clearEvent = function(){
+				$scope.newEvent = {
+					title:"",
+					description:"",
+					date:"",
+					logo:""
+				}
+			}
+
+			$scope.add = function(){
+				EventsService.add($scope.newEvent, function(){
+					$scope.clearEvent();
+					ctrl.showAddEvent = false;
+				}, function(){
+					//TODO Add error management
+				});
+			}
+
+			$scope.clearEvent();
+		}]);
+})();
+(function(){
+	angular.module("event-management")
+		.directive("addEvent", [function(){
+			return {
+				restict: "E",
+				templateUrl: "/javascripts/event-management/events/add-event/directive.html",
+				controller:"AddEventController",
+				controllerAs:"ctrl"
 			}
 		}]);
 })();
