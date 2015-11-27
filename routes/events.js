@@ -11,7 +11,7 @@ var events = [
   		{
   			title: "Hackathon E-Résidents",
   			description: "Devs, makers, designers, data scientists – get ready to hack! Dalkia, Intent Technologies and BeMyApp invite you to a hackathon with sustainability at its core. The concept is to take a bunch of data related to residents and their energy usage and, using your savvy, develop the ultimate e-resident solution to improve the daily lives of tenants. In this four-step event, submit your idea online using the ideation platform, then attend a workshop with our team of experts, during which you’ll form into teams. Next up is a fiercely competitive 48-hour hackathon), where the most successful teams will share a prize of €15,000, plus begin a two-month incubation with Dalkia. The event will be held at l’USINE IO in Paris, a building fully connected to deliver energy-related data. With this, your resulting e-resident apps will help future tenants live more sustainably. Quite the payoff, right?",
-  			date: "02/072016",
+  			date: "02/07/2016",
   			logo: "http://www.mtbela.com/resources/uploads/Dalkia.jpg"
   		},
   		{
@@ -25,6 +25,27 @@ var events = [
 /* GET events listing. */
 router.get('/', function(req, res, next) {
   res.json(events);
+});
+
+router.post('/', function(req, res){
+	if( !req.body.hasOwnProperty('title') || req.body.title === "" || 
+      !req.body.hasOwnProperty('description') || req.body.description === "" || 
+      !req.body.hasOwnProperty('date') || req.body.date === "" || 
+      !req.body.hasOwnProperty('logo') || req.body.logo === ""){
+		res.statusCode = 400;
+		return res.send("Error 400 : Missing informations");
+	}
+
+	var newEvent = {
+		title: req.body.title,
+		description: req.body.description,
+		date: req.body.date,
+		logo: req.body.logo
+	};
+
+	events.push(newEvent);
+
+	res.json(newEvent);
 });
 
 module.exports = router;
