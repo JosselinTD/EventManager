@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var moment = require('moment');
+var formidable = require('formidable');
 
 var events = [
   		{
@@ -29,26 +30,35 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', function(req, res){
-	if( !req.body.hasOwnProperty('title') || req.body.title === "" || 
-      !req.body.hasOwnProperty('description') || req.body.description === "" || 
-      !req.body.hasOwnProperty('date') || req.body.date === "" || 
-      !req.body.hasOwnProperty('logo') || req.body.logo === ""){
-		res.statusCode = 400;
-		return res.send("Error 400 : Missing informations");
-	}
 
-  var date = moment(req.body.date);
+    //Formidable is used to parse the file upload sended by FormData
+    var form = new formidable.IncomingForm();
 
-	var newEvent = {
-		title: req.body.title,
-		description: req.body.description,
-		date: date.format("MM/DD/YYYY"),
-		logo: req.body.logo
-	};
+    form.uploadDir = "public/images";
 
-	events.push(newEvent);
+    form.parse(req, function(err, fields, files) {
+      
+      if( !fields.hasOwnProperty('title') || fields.title === "" || 
+          !fields.hasOwnProperty('description') || fields.description === "" || 
+          !fields.hasOwnProperty('date') || fields.date === "" || 
+          !files.hasOwnProperty('logo')){
+        res.statusCode = 400;
+        return res.send("Error 400 : Missing informations");
+      }
 
-	res.json(newEvent);
+      var date = moment(fields.date);
+
+      var newEvent = {
+        title: fields.title,
+        description: fields.description,
+        date: date.format("MM/DD/YYYY"),
+        logo: files.logo.path.replace("public", "")
+      };
+
+      events.push(newEvent);
+
+      res.json(newEvent);
+    });
 });
 
 module.exports = router;

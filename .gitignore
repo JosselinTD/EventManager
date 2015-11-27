@@ -1,2 +1,4 @@
 node_modules/
 public/javascripts/vendor/
+public/images/
+npm-debug.log
