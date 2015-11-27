@@ -3,7 +3,9 @@
 		.service("EventsService", ["$resource", function($resource){
 			var Events = $resource("/events/:id", null, {
 						update: {
-							method: "PUT"
+							method: "PUT",
+							transformRequest: angular.identity,
+							headers: {'Content-Type': undefined}
 						},
 						save: { //For file upload, see https://uncorkedstudios.com/blog/multipartformdata-file-upload-with-angularjs
 							method: "POST",
@@ -16,21 +18,40 @@
 
 			serv.events = Events.query();
 
-			serv.add = function(event, success, error){
+			serv.save = function(event, success, error){
 				success = success || function(){};
 				error = error || function(){};
 
 				var fd = new FormData();
 				for (var key in event) {
-		            fd.append(key, event[key]);
+					if(event.hasOwnProperty(key)){
+		            	fd.append(key, event[key]);
+		            }
 		        }
 
-				Events.save({}, fd, function(data){
-					serv.events.push(new Events(data));
-					success();
-				}, function(){
-					error();
-				});
+		        if(event._id){
+		        	Events.update({}, fd, function(data){
+		        		var updatedEvent = new Events(data);
+		        		serv.events.some(function(item){
+		        			if(item._id == updatedEvent){
+		        				angular.extend(item, updatedEvent);
+		        				return true;
+		        			}
+		        			return false;
+		        		})
+						success();
+					}, function(){
+						error();
+					});
+		        } else {
+		        	Events.save({}, fd, function(data){
+						serv.events.push(new Events(data));
+						success();
+					}, function(){
+						error();
+					});
+		        }
+				
 			}
 		}]);
 })();
