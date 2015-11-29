@@ -37,3 +37,13 @@ a {
 .event .popunder .edit{
 	float:right;
 }
+
+.past-events{
+	font-size:8pt;
+	text-align:right;
+}
+
+.past-events *{
+	vertical-align: middle;	
+	margin:0 !important;
+}
