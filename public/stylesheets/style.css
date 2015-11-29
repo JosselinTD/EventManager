@@ -1,10 +1,42 @@
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00B7FF;
+}
+
+.container-fluid{
+	padding:0;
+}
+
+.add-event{
+	background-color:#f2efed;
+	text-align: center;
+	padding: 50px 0;
+}
+
+.add-event button{
+	font-size:20pt;
+	padding:10px 100px;
+	position:relative;
+}
+
+.add-event .glyphicon{
+	position:absolute;
+	top:-2px;
+	left:50%;
+
+	color:#286090;
+
+	font-size:0.8em;
+
+	border-radius: 100px;
+	background-color: white;
+	padding:7px;
+
+	-webkit-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
 }
 
 .event{
@@ -38,12 +70,24 @@ a {
 	float:right;
 }
 
-.past-events{
+.search-event{
 	font-size:8pt;
 	text-align:right;
 }
 
-.past-events *{
+.search-event *{
 	vertical-align: middle;	
 	margin:0 !important;
+}
+
+.title-bar{
+	margin-top:50px;
+}
+
+.title-bar h1{
+	margin-top:0;
+}
+
+.modal-event{
+	margin:20px;
 }

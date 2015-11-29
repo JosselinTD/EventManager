@@ -1,18 +1,18 @@
 <div class="events">
 	<add-event></add-event>
-	<div class="row">
-		<div class="col-md-3 col-md-offset-9">
-			<input type="text" ng-model="search" placeholder="Search" class="form-control"/>
+	<div class="container">
+		<div class="row title-bar">
+			<div class="col-md-9">
+				<h1>Event Management</h1>
+			</div>
+			<div class="col-md-3 search-event">
+				<input type="text" ng-model="search" placeholder="Search" class="form-control"/>
+				<label>
+					<span>Show past events</span>
+					<input type="checkbox" ng-model="pastEvents"/>
+				</label>
+			</div>
 		</div>
-		
+		<event ng-repeat="event in events | filter: searchFilter | orderBy : 'date'" event="event"></event>
 	</div>
-	<div class="row">
-		<div class="col-md-2 col-md-offset-10 past-events">
-			<label>
-				<span>Show past events</span>
-				<input type="checkbox" ng-model="pastEvents"/>
-			</label>
-		</div>
-	</div>
-	<event ng-repeat="event in events | filter: searchFilter | orderBy : 'date'" event="event"></event>
 </div>
