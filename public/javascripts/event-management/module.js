@@ -23,6 +23,7 @@
 				if(!$scope.pastEvents && obj.past){
 					return false;
 				}
+				//We don't want to include the logo in the search engine
 				return !$scope.search || re.test(obj.title) || re.test(obj.description) || re.test(obj.date);
 			}
 		}]);
@@ -62,6 +63,7 @@
 				success = success || function(){};
 				error = error || function(){};
 
+				//Change the event in FormData
 				var fd = new FormData();
 				for (var key in event) {
 					if(event.hasOwnProperty(key)){
@@ -69,12 +71,12 @@
 		            }
 		        }
 
-		        if(event._id){
+		        if(event._id){ //We need to check if the event already exist in DB
 		        	Events.update({}, fd, function(data){
 		        		var updatedEvent = new Events(data);
 		        		serv.events.some(function(item){
 		        			if(item._id == updatedEvent._id){
-		        				angular.extend(item, updatedEvent);
+		        				angular.extend(item, updatedEvent); //To avoid loosing references, we merge the existing object and its DB update
 		        				return true;
 		        			}
 		        			return false;
@@ -91,7 +93,6 @@
 						error(errorObject.data);
 					});
 		        }
-				
 			}
 		}]);
 })();
@@ -108,8 +109,6 @@
 					logo:""
 				}, "Add");
 			};
-
-			
 		}]);
 })();
 (function(){
@@ -140,28 +139,6 @@
 })();
 (function(){
 	angular.module("event-management")
-		.controller("EventController", ["$scope", "EventsService", "EventModalService", function($scope, EventsService, EventModalService){
-			$scope.edit = function(){
-				EventModalService.open($scope.event, "Edit");
-			}
-		}]);
-})();
-(function(){
-	angular.module("event-management")
-		.directive("event", [function(){
-			return {
-				restrict: "E",
-				templateUrl: "/javascripts/event-management/events/event/directive.html",
-				controller: "EventController",
-				controllerAs: "ctrl",
-				scope:{
-					event: "="
-				}
-			}
-		}]);
-})();
-(function(){
-	angular.module("event-management")
 		.controller("EventModalController", ["$scope", "$uibModalInstance", "EventsService", "initialEvent", "action", function($scope, $uibModalInstance, EventsService, initialEvent, action){
 			$scope.error = "";
 
@@ -170,7 +147,6 @@
 				EventsService.save($scope.event, function(){
 					$uibModalInstance.close('valid');
 				}, function(error){
-					console.log(error);
 					$scope.error = error.message;
 				});
 			};
@@ -180,11 +156,14 @@
 			$scope.cancel = function(){
 				$uibModalInstance.dismiss('cancel');
 			}
-			$scope.event = angular.copy(initialEvent);
-			$scope.action = action;
+			$scope.event = angular.copy(initialEvent); //This prevent the modification of the current event until the BDD insertion
+			$scope.action = action; //Add or edit
 		}]);
 })();
 (function(){
+	/*
+	* This modal is a part of the Angular-bootstrap libs. See the documentation at https://angular-ui.github.io/bootstrap/#/modal
+	*/
 	angular.module("event-management")
 		.service("EventModalService", ["$uibModal", function($uibModal){
 			var serv = this;
@@ -204,6 +183,28 @@
 						}
 					}
 				});
+			}
+		}]);
+})();
+(function(){
+	angular.module("event-management")
+		.controller("EventController", ["$scope", "EventsService", "EventModalService", function($scope, EventsService, EventModalService){
+			$scope.edit = function(){
+				EventModalService.open($scope.event, "Edit");
+			}
+		}]);
+})();
+(function(){
+	angular.module("event-management")
+		.directive("event", [function(){
+			return {
+				restrict: "E",
+				templateUrl: "/javascripts/event-management/events/event/directive.html",
+				controller: "EventController",
+				controllerAs: "ctrl",
+				scope:{
+					event: "="
+				}
 			}
 		}]);
 })();

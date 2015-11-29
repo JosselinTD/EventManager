@@ -8,6 +8,9 @@ var uploadDir = "public/images",
     dateFormat = "YYYY/MM/DD",
     dateSize = dateFormat.length;
 
+/*
+* This function check if all informations for adding or modifying an event are provided
+*/
 function checkRequestContent(fields, files){
   var bad = {code: 400, message:"Missing informations", error:"Missing information"};
   if( !fields.hasOwnProperty('title') || fields.title === "" || 
@@ -25,7 +28,9 @@ function getToday(){
   return moment().format(dateFormat);
 }
 
-/* GET events listing. */
+/*
+* REQUEST HANDLER
+*/
 router.get('/', function(req, res, next) {
   var today = getToday();
   Event.find({}).lean().exec(function(error, events){ //use lean.exec to have an array of plain JS object, useful for on the fly "past" modification
@@ -47,7 +52,7 @@ router.post('/', function(req, res){
 
     form.uploadDir = uploadDir;
 
-    form.parse(req, function(err, fields, files) {
+    form.parse(req, function(err, fields, files) { //formidable parse the request and store informations in fields and files
       var check = checkRequestContent(fields, files);
       if(check){
         res.statusCode = check.code;
@@ -60,7 +65,7 @@ router.post('/', function(req, res){
         title: fields.title,
         description: fields.description,
         date: date.format(dateFormat),
-        logo: files.logo.path.replace("public", "")
+        logo: files.logo.path.replace("public", "") //removing the "public" part of the image path because this part is "invisible" for the front
       });
 
       newEvent.save(function(error, event){
@@ -86,7 +91,7 @@ router.put('/', function(req, res){
 
     form.uploadDir = uploadDir;
 
-    form.parse(req, function(err, fields, files) {
+    form.parse(req, function(err, fields, files) { //formidable parse the request and store informations in fields and files
       var check = checkRequestContent(fields, files);
       if(check){
         res.statusCode = check.code;
@@ -98,6 +103,7 @@ router.put('/', function(req, res){
         var date = moment(date).format(dateFormat);
       }
 
+      //Check if the logo is a new file or if the old logo is remaining
       var logo = fields.logo;
       if(files.hasOwnProperty("logo")){
         logo = files.logo.path.replace("public", "");
@@ -110,8 +116,8 @@ router.put('/', function(req, res){
         logo: logo
       };
 
-      Event.update({_id: fields._id}, {$set:newEvent}, function(error, event){
-        if(error || !event){
+      Event.update({_id: fields._id}, {$set:newEvent}, function(error, bddModification){
+        if(error || !bddModification.ok){
           res.statusCode = 500;
           return res.json({message:"Something bad happen in the Matrix, please warn the architect !", error:error});
         } else{
@@ -127,7 +133,6 @@ router.put('/', function(req, res){
         }
       });
     });
-      
 });
 
 module.exports = router;

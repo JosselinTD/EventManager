@@ -9,6 +9,7 @@
 				if(!$scope.pastEvents && obj.past){
 					return false;
 				}
+				//We don't want to include the logo in the search engine
 				return !$scope.search || re.test(obj.title) || re.test(obj.description) || re.test(obj.date);
 			}
 		}]);

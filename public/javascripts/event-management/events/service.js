@@ -22,6 +22,7 @@
 				success = success || function(){};
 				error = error || function(){};
 
+				//Change the event in FormData
 				var fd = new FormData();
 				for (var key in event) {
 					if(event.hasOwnProperty(key)){
@@ -29,12 +30,12 @@
 		            }
 		        }
 
-		        if(event._id){
+		        if(event._id){ //We need to check if the event already exist in DB
 		        	Events.update({}, fd, function(data){
 		        		var updatedEvent = new Events(data);
 		        		serv.events.some(function(item){
 		        			if(item._id == updatedEvent._id){
-		        				angular.extend(item, updatedEvent);
+		        				angular.extend(item, updatedEvent); //To avoid loosing references, we merge the existing object and its DB update
 		        				return true;
 		        			}
 		        			return false;
@@ -51,7 +52,6 @@
 						error(errorObject.data);
 					});
 		        }
-				
 			}
 		}]);
 })();

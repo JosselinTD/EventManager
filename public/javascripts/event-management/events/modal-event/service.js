@@ -1,4 +1,7 @@
 (function(){
+	/*
+	* This modal is a part of the Angular-bootstrap libs. See the documentation at https://angular-ui.github.io/bootstrap/#/modal
+	*/
 	angular.module("event-management")
 		.service("EventModalService", ["$uibModal", function($uibModal){
 			var serv = this;
