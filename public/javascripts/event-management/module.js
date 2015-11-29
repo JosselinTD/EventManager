@@ -16,6 +16,11 @@
 	angular.module("event-management")
 		.controller("EventsController", ["$scope", "EventsService", function($scope, EventsService){
 			$scope.events = EventsService.events;
+
+			$scope.searchFilter = function(obj){
+				var re = new RegExp($scope.search, 'i');
+				return !$scope.search || re.test(obj.title) || re.test(obj.description) || re.test(obj.date);
+			}
 		}]);
 })();
 (function(){
@@ -34,7 +39,9 @@
 		.service("EventsService", ["$resource", function($resource){
 			var Events = $resource("/events/:id", null, {
 						update: {
-							method: "PUT"
+							method: "PUT",
+							transformRequest: angular.identity,
+							headers: {'Content-Type': undefined}
 						},
 						save: { //For file upload, see https://uncorkedstudios.com/blog/multipartformdata-file-upload-with-angularjs
 							method: "POST",
@@ -47,48 +54,58 @@
 
 			serv.events = Events.query();
 
-			serv.add = function(event, success, error){
+			serv.save = function(event, success, error){
 				success = success || function(){};
 				error = error || function(){};
 
 				var fd = new FormData();
 				for (var key in event) {
-		            fd.append(key, event[key]);
+					if(event.hasOwnProperty(key)){
+		            	fd.append(key, event[key]);
+		            }
 		        }
 
-				Events.save({}, fd, function(data){
-					serv.events.push(new Events(data));
-					success();
-				}, function(){
-					error();
-				});
+		        if(event._id){
+		        	Events.update({}, fd, function(data){
+		        		var updatedEvent = new Events(data);
+		        		serv.events.some(function(item){
+		        			if(item._id == updatedEvent._id){
+		        				angular.extend(item, updatedEvent);
+		        				return true;
+		        			}
+		        			return false;
+		        		})
+						success();
+					}, function(){
+						error();
+					});
+		        } else {
+		        	Events.save({}, fd, function(data){
+						serv.events.push(new Events(data));
+						success();
+					}, function(){
+						error();
+					});
+		        }
+				
 			}
 		}]);
 })();
 (function(){
 	angular.module("event-management")
-		.controller("AddEventController", ["$scope", "EventsService", function($scope, EventsService){
+		.controller("AddEventController", ["$scope", "EventsService", "EventModalService", function($scope, EventsService, EventModalService){
 			var ctrl = this;
 
-			$scope.clearEvent = function(){
-				$scope.newEvent = {
+			$scope.addEvent = function(){
+				EventModalService.open({
 					title:"",
 					description:"",
 					date:"",
 					logo:""
-				}
-			}
+				}, "Add");
+			};
 
-			$scope.add = function(){
-				EventsService.add($scope.newEvent, function(){
-					$scope.clearEvent();
-					ctrl.showAddEvent = false;
-				}, function(){
-					//TODO Add error management
-				});
-			}
-
-			$scope.clearEvent();
+			
 		}]);
 })();
 (function(){
@@ -117,16 +134,68 @@
 			}
 		}]);
 })();
-
+(function(){
+	angular.module("event-management")
+		.controller("EventController", ["$scope", "EventsService", "EventModalService", function($scope, EventsService, EventModalService){
+			$scope.edit = function(){
+				EventModalService.open($scope.event, "Edit");
+			}
+		}]);
+})();
 (function(){
 	angular.module("event-management")
 		.directive("event", [function(){
 			return {
 				restrict: "E",
 				templateUrl: "/javascripts/event-management/events/event/directive.html",
+				controller: "EventController",
+				controllerAs: "ctrl",
 				scope:{
 					event: "="
 				}
+			}
+		}]);
+})();
+(function(){
+	angular.module("event-management")
+		.controller("EventModalController", ["$scope", "$uibModalInstance", "EventsService", "initialEvent", "action", function($scope, $uibModalInstance, EventsService, initialEvent, action){
+			$scope.add = function(){
+				EventsService.save($scope.event, function(){
+					$uibModalInstance.close('valid');
+				}, function(){
+					//TODO Add error management
+				});
+			};
+			$scope.clearEvent = function(){
+				$scope.event = angular.copy(initialEvent);
+			}
+			$scope.cancel = function(){
+				$uibModalInstance.dismiss('cancel');
+			}
+			$scope.event = angular.copy(initialEvent);
+			$scope.action = action;
+		}]);
+})();
+(function(){
+	angular.module("event-management")
+		.service("EventModalService", ["$uibModal", function($uibModal){
+			var serv = this;
+
+			this.open = function(event, action){
+				var modalInstance = $uibModal.open({
+					animation: true,
+					templateUrl: "/javascripts/event-management/events/modal-event/directive.html",
+					controller: "EventModalController",
+					size: "lg",
+					resolve: {
+						initialEvent: function(){
+							return event;
+						},
+						action: function(){
+							return action;
+						}
+					}
+				});
 			}
 		}]);
 })();
