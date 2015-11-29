@@ -21,9 +21,21 @@ function checkRequestContent(fields, files){
   return false;
 }
 
+function getToday(){
+  return moment().format(dateFormat);
+}
+
 /* GET events listing. */
 router.get('/', function(req, res, next) {
-  Event.find({}, function(error, events){
+  var today = getToday();
+  Event.find({}).lean().exec(function(error, events){ //use lean.exec to have an array of plain JS object, useful for on the fly "past" modification
+    events.forEach(function(mEvent){
+      if(mEvent.date < today){
+        mEvent.past = true;
+      } else {
+        mEvent.past = false;
+      }
+    });
     res.json(events);
   });
 });
@@ -52,10 +64,16 @@ router.post('/', function(req, res){
       });
 
       newEvent.save(function(error, event){
+        event = event.toObject(); //Convert event on plain JS object, useful for "past" modification
         if(error || !event){
           res.statusCode = 500;
           return res.json({message:"Something bad happen in the Matrix, please warn the architect !", error:error});
         } else{
+          if(event.date < getToday()){
+            event.past = true;
+          } else {
+            event.past = false;
+          }
           res.json(event);
         }
       });
@@ -98,6 +116,12 @@ router.put('/', function(req, res){
           return res.json({message:"Something bad happen in the Matrix, please warn the architect !", error:error});
         } else{
           Event.findOne({_id: fields._id}, function(error, event){
+            event = event.toObject(); //Convert event on plain JS object, useful for "past" modification
+            if(event.date < getToday()){
+              event.past = true;
+            } else {
+              event.past = false;
+            }
             res.json(event);
           });
         }
