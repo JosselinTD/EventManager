@@ -40,15 +40,15 @@
 		        			return false;
 		        		})
 						success();
-					}, function(){
-						error();
+					}, function(errorObject){
+						error(errorObject.data);
 					});
 		        } else {
 		        	Events.save({}, fd, function(data){
 						serv.events.push(new Events(data));
 						success();
-					}, function(){
-						error();
+					}, function(errorObject){
+						error(errorObject.data);
 					});
 		        }
 				

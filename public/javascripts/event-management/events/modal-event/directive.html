@@ -12,7 +12,7 @@
 	<div class="form-group">
 		<input type="file" class="form-control" placeholder="Logo" file-model="event.logo"/>
 	</div>
-
+	<div class="error bg-danger" ng-bind="error" ng-if="error !== ''"></div>
 	<input type="submit" class="btn btn-primary" value="{{ action }}"/>
 	<span class="btn btn-warning" ng-click="clearEvent()">Reset</span>
 	<span class="btn btn-danger" ng-click="cancel()">Cancel</span>

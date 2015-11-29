@@ -91,3 +91,9 @@ a {
 .modal-event{
 	margin:20px;
 }
+
+.error{
+	padding:10px;
+	font-size:1.5em;
+	margin-bottom: 10px;
+}
