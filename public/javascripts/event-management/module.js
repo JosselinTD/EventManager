@@ -16,9 +16,13 @@
 	angular.module("event-management")
 		.controller("EventsController", ["$scope", "EventsService", function($scope, EventsService){
 			$scope.events = EventsService.events;
+			$scope.pastEvents = false;
 
 			$scope.searchFilter = function(obj){
 				var re = new RegExp($scope.search, 'i');
+				if(!$scope.pastEvents && obj.past){
+					return false;
+				}
 				return !$scope.search || re.test(obj.title) || re.test(obj.description) || re.test(obj.date);
 			}
 		}]);
@@ -76,15 +80,15 @@
 		        			return false;
 		        		})
 						success();
-					}, function(){
-						error();
+					}, function(errorObject){
+						error(errorObject.data);
 					});
 		        } else {
 		        	Events.save({}, fd, function(data){
 						serv.events.push(new Events(data));
 						success();
-					}, function(){
-						error();
+					}, function(errorObject){
+						error(errorObject.data);
 					});
 		        }
 				
@@ -159,11 +163,15 @@
 (function(){
 	angular.module("event-management")
 		.controller("EventModalController", ["$scope", "$uibModalInstance", "EventsService", "initialEvent", "action", function($scope, $uibModalInstance, EventsService, initialEvent, action){
+			$scope.error = "";
+
 			$scope.add = function(){
+				$scope.error = "";
 				EventsService.save($scope.event, function(){
 					$uibModalInstance.close('valid');
-				}, function(){
-					//TODO Add error management
+				}, function(error){
+					console.log(error);
+					$scope.error = error.message;
 				});
 			};
 			$scope.clearEvent = function(){
